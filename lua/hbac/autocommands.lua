@@ -11,7 +11,7 @@ local M = {
 	},
 }
 
-M.autoclose.setup = function()
+M.autoclose.autocmd = function()
 	state.autoclose_enabled = true
 	vim.api.nvim_create_autocmd({ "BufEnter" }, {
 		group = vim.api.nvim_create_augroup(M.autoclose.name, { clear = true }),
@@ -69,6 +69,22 @@ M.autoclose.setup = function()
 			end
 		end,
 	})
+end
+
+M.autoclose.setup = function()
+	state.autoclose_enabled = true
+
+	if vim.fn.argc() == 0 then  -- or whatever conditions are appropriate for checking SessionLoad
+		vim.api.nvim_create_autocmd({ "SessionLoadPost" }, {
+			pattern = { "*" },
+			callback = function()
+				M.autoclose.autocmd()
+			end,
+			once = true,  -- I think this is appropriate here
+		})
+		return
+	end
+	M.autoclose.autocmd()
 end
 
 M.autoclose.disable = function()
